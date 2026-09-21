@@ -24,7 +24,7 @@ The essential distinction is:
 - **Map construction:** fit the whole matrix of landmark-to-landmark times. There is no selected origin.
 - **Route search:** overlay one directed journey from a selected start to a destination. This does not change the matrix or the deformation anchors.
 
-There are currently $N=21$ landmarks, including 人大附中本部 / RDFZ, and
+There are currently $N=21$ landmarks, giving
 
 ```math
 \binom{N}{2}=\frac{21\cdot20}{2}=210
@@ -176,10 +176,9 @@ K_r(\mathbf{x})=\beta_r
 The total traffic pressure is
 
 ```math
-\boxed{
 P(\mathbf{x};d,h)=0.08w_{\mathrm{core}}(h)
 +\sum_r K_r(\mathbf{x})w_{k(r)}(d,h)
-}.
+
 ```
 
 The current zone parameters are:
@@ -262,10 +261,9 @@ Link roads inherit their base class but are capped at 25 km/h. These are model c
 The edge cost, in minutes, is
 
 ```math
-\boxed{
 c_e^{\mathrm{car}}(d,h)=
 \frac{60\ell_e\mu_e(d,h)}{v_e^0}+0.22\ell_e
-}.
+
 ```
 
 The second term is a distance-proportional delay allowance. Thus doubling $\mu_e$ doubles the moving-time term, not necessarily the whole edge cost or total journey time.
@@ -325,11 +323,10 @@ C_m(\pi;d,h).
 The complete road-mode estimate is
 
 ```math
-\boxed{
 T_{ij}^{(m)}(d,h)=
 C_m(\pi_m^*;d,h)
 +12.5\bigl[\delta_m(p_i)+\delta_m(p_j)\bigr]+b_m
-},
+
 ```
 
 with $b_{\mathrm{car}}=4$, $b_{\mathrm{bus}}=10$, and $b_{\mathrm{bike}}=1$ minute. Matrix diagonals are explicitly set to zero.
@@ -372,7 +369,7 @@ The additional waiting allowance is
 ```math
 \omega(d,h)=
 \begin{cases}
-1,&w_{\mathrm{commute}}(d,h)>0.65,\\
+1,&w_{\mathrm{commute}}(d,h)\gt0.65,\\
 3,&w_{\mathrm{commute}}(d,h)\le0.65.
 \end{cases}
 ```
@@ -411,7 +408,7 @@ This creates a small distinction from the matrix generator, which can admit same
 The conservative transit availability switch is
 
 ```math
-\chi(h)=\begin{cases}1,&6\le h<22,\\0,&\text{otherwise}.\end{cases}
+\chi(h)=\begin{cases}1,&6\le h\lt22,\\0,&\text{otherwise}.\end{cases}
 ```
 
 For Bus or Bike with subway alternatives enabled and available,
@@ -453,7 +450,7 @@ Consequently, exact planar preservation is not generally possible, even before g
 The embedding seeks centred coordinates $y_i\in\mathbb{R}^2$, measured in minute-coordinate units, that approximately minimize
 
 ```math
-\mathcal{S}(Y)=\sum_{i<j}
+\mathcal{S}(Y)=\sum_{i\lt j}
 \left(\lVert y_i-y_j\rVert_2-D_{ij}\right)^2.
 ```
 
@@ -462,8 +459,7 @@ Let $\bar p=N^{-1}\sum_i p_i$ and $r_i=p_i-\bar p$. Initialize with
 ```math
 y_i^{(0)}=\alpha r_i,
 \qquad
-\alpha=\frac{\sum_{i<j}D_{ij}}
-{\sum_{i<j}\lVert r_i-r_j\rVert_2}.
+\alpha=\frac{\sum_{i\lt j}D_{ij}}{\sum_{i\lt j}\lVert r_i-r_j\rVert_2}.
 ```
 
 Starting from the geographic configuration helps retain a recognizable orientation.
@@ -473,12 +469,11 @@ Starting from the geographic configuration helps retain a recognizable orientati
 For 350 iterations, the implementation applies the complete-graph stress-majorization update
 
 ```math
-\boxed{
 y_i^{(k+1)}=
 \frac{1}{N}\sum_{j\ne i}
 \frac{D_{ij}}{\max\left(10^{-6},\lVert y_i^{(k)}-y_j^{(k)}\rVert_2\right)}
 \left(y_i^{(k)}-y_j^{(k)}\right)
-}.
+
 ```
 
 Pairwise antisymmetry keeps the updated configuration centred. The small denominator floor prevents division by zero. The implementation uses a fixed iteration count, not a convergence tolerance, and does not certify a global minimum of this nonconvex objective.
@@ -486,7 +481,7 @@ Pairwise antisymmetry keeps the updated configuration centred. The small denomin
 After iteration, a rotation aligns the result with geography:
 
 ```math
-\theta=\operatorname{atan2}
+\theta=\mathrm{atan2}
 \left(
 \sum_i(y_{ix}r_{iy}-y_{iy}r_{ix}),
 \sum_i(y_{ix}r_{ix}+y_{iy}r_{iy})
@@ -522,7 +517,7 @@ The implemented radial kernel is
 ```math
 U(s)=
 \begin{cases}
-s\log s,&s>10^{-12},\\
+s\log s,&s\gt10^{-12},\\
 0,&s\le10^{-12},
 \end{cases}
 \qquad s=\lVert u-u_i\rVert_2^2.
@@ -575,7 +570,7 @@ The lower block imposes the affine side conditions $P^\mathsf{T}W=0$. Regulariza
 The final deformation is
 
 ```math
-F_\eta(x)=x+\eta f(x),\qquad 0<\eta\le1.
+F_\eta(x)=x+\eta f(x),\qquad 0\lt\eta\le1.
 ```
 
 Its Jacobian is
@@ -603,12 +598,7 @@ The displayed anchor is $z_i=F_\eta(p_i)$, which can differ from the ideal embed
 The UI reports the relative absolute pair-distance error of the **final moderated map**:
 
 ```math
-\boxed{
-\mathrm{mismatch}(\%)=
-100\frac{
-\sum_{i<j}\left|\kappa\lVert F_\eta(p_i)-F_\eta(p_j)\rVert_2-D_{ij}\right|
-}{\sum_{i<j}D_{ij}}
-}.
+\mathrm{mismatch}(\%) = 100\,\frac{\sum_{i\lt j}\left|\kappa\lVert F_\eta(p_i)-F_\eta(p_j)\rVert_2-D_{ij}\right|}{\sum_{i\lt j}D_{ij}}.
 ```
 
 This is not the squared stress minimized by the embedding, an ETA error against observations, or a confidence interval. A low mismatch means only that the displayed separations approximate the model's own pair-time targets well.
